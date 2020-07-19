@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_content %}
+<script type="text/javascript">
+    $(function () {
+        $('#date-picker').datepicker({
+            format: 'dd-mm-yyyy',
+            autoclose: true
+        });
+    });
+    $(function () {
+        let avail_stations = {{ stations | safe }};
+        $("#dep_input").autocomplete({
+            source: avail_stations
+        });
+        $("#arr_input").autocomplete({
+            source: avail_stations
+        })
+    });
+</script>
+<div class="container">
+    <div class="jumbotron">
+        <h1 class="display-4">NS Price comparer</h1>
+        <p class="lead">Test which subscription fits your travel plans</p>
+        <hr class="my-4">
+        <p>Select your travels below</p>
+    </div>
+    <form action="/get-prices/" method="post">
+        <div class="form-group row" id="row-1">
+            <div class="col">
+                <input type="text" id="dep_input" class="form-control" placeholder="Departure">
+            </div>
+            <div class="col">
+                <input type="text" id="arr_input" class="form-control" placeholder="Arrival">
+            </div>
+            <div class="col">
+                <div class="input-group date" data-provide="datepicker" id="date-picker">
+                    <input type="text" class="form-control date-withicon" placeholder="Date"/>
+                    <div class="input-group-addon">
+                        <span class="glyphicon glyphicon-th"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="input-group timepicker" data-provide="timepicker" id="time-picker">
+                    <input type="text" class="form-control date-withicon" placeholder="Time"/>
+                    <div class="input-group-addon">
+                        <span class="glyphicon glyphicon-time"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <button class="btn btn-danger" id="deleteRow">X</button>
+            </div>
+        </div>
+        <div>
+            <a class="btn btn-primary" id="insertRow" href="#">Add new trip</a>
+
+        </div>
+    </form>
+
+</div>
+{% endblock %}
