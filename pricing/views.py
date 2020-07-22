@@ -18,7 +18,6 @@ if sys.version_info.minor < 6:
 TripFormSet = formset_factory(TripForm, extra=3)
 
 
-
 def index(request):
     stations = [str(station) for station in Station.objects.all()]
     station_str = '[\"%s\"]' % '\",\"'.join(stations)
@@ -45,7 +44,8 @@ def index(request):
 
 
 def get_prices(formset):
-    subs = [sub.DalVrij(), sub.DalVoordeel(), sub.WeekendVrij()]
+    subs = [sub.Basis(), sub.DalVoordeel(), sub.WeekendVoordeel, sub.AltijdVoordeel(), sub.DalVrij(), sub.WeekendVrij(),
+            sub.AltijdVrij()]
     trip_list = []
     for form in formset:
         dep_code = Station.objects.get(long=form.cleaned_data['departure']).code
