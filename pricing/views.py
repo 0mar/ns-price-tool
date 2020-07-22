@@ -44,7 +44,8 @@ def index(request):
 
 
 def get_prices(formset):
-    subs = [sub.Basis(), sub.DalVoordeel(), sub.WeekendVoordeel, sub.AltijdVoordeel(), sub.DalVrij(), sub.WeekendVrij(),
+    subs = [sub.Basis(), sub.DalVoordeel(), sub.WeekendVoordeel(), sub.AltijdVoordeel(), sub.DalVrij(),
+            sub.WeekendVrij(),
             sub.AltijdVrij()]
     trip_list = []
     for form in formset:
