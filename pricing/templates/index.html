@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load static %}
 {% load crispy_forms_tags %}
+{% load render_table from django_tables2 %}
+
 {% block page_content %}
     <script type="text/javascript">
         $(function () {
@@ -14,32 +16,95 @@
             $(".station_input").autocomplete({
                 source: avail_stations
             });
+
+            function clone_more(selector, type) {
+                let new_element = $(selector).clone(true);
+                let total_selector = $("#id_" + type + '-TOTAL_FORMS');
+                let total = total_selector.val();
+                let old_index = '-' + (total - 1) + '-';
+                let new_index = '-' + (total) + '-'
+                new_element.find(":input").each(function () {
+                    let name = $(this).attr('name').replace(old_index, new_index);
+                    let id = 'id_' + name;
+                    $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked')
+                });
+                new_element.find('label').each(function () {
+                    let new_for = $(this).attr('for').replace(old_index, new_index);
+                    $(this).attr('for', new_for);
+                });
+                new_element.find('div.input-group').each(function () {
+                    let new_id = $(this).attr('id').replace(old_index, new_index)
+                    $(this).attr('id', new_id);
+                })
+                new_element.attr('id', 'row-' + total);
+                total++;
+                total_selector.val(total);
+                $(selector).after(new_element);
+                console.log(new_element.find('.station_input'))
+                new_element.find('.station_input').each(function () {
+                    $(this).autocomplete({
+                        source: avail_stations
+                    });
+                });
+            }
+
+            function erase(selector, type) {
+                let total_selector = $("#id_" + type + '-TOTAL_FORMS');
+                let total = total_selector.val();
+                total_selector.val(total - 1);
+                $(selector).remove();
+            }
+
+            $('#add_row').click(function (e) {
+                e.preventDefault();
+                clone_more('div.form-group:last', 'form');
+            });
+            $('#delete_row').click(function (e) {
+                e.preventDefault();
+                erase('div.form-group:last', 'form')
+
+            })
         });
     </script>
     <div class="container">
         <div class="jumbotron">
             <h1 class="display-4">NS Price comparer</h1>
-            <p class="lead">Test which subscription fits your travel plans</p>
+            <p class="lead">Test which subscription fits your travel plans best</p>
             <hr class="my-4">
             <p>Select your travels below</p>
         </div>
+        <div class="row"><h4>Subscription picker</h4></div>
         <div class="row">
-            <div class="col-lg-10">
-                <form action="/" method="post">
-                    <div class="form-group row" id="row-1">
-                    {% csrf_token %}
-                    {% crispy form %}
-                    {#        <div>#}
-                    {#            <a class="btn btn-primary" id="insertRow" href="#">Add new trip</a>#}
-                    {#        </div>#}
+            <form action="/" method="post" class="form-inline">
+                {% csrf_token %}
+                {{ formset.management_form|crispy }}
+                {% for form in formset %}
+                    <div class="form-group row" id="row-{{ forloop.counter0 }}">
+                        {% crispy form %}
                     </div>
-                </form>
-            </div>
-            <div class="col-lg-2">
-                Prices here
-            </div>
+                {% endfor %}
+                <div class="row">
+                    <div class="col-md-4">
+                        <input class="btn btn-primary" type="submit" value="Submit">
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-success" id="add_row">+</button>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-danger" id="delete_row">-</button>
+                    </div>
+                </div>
+            </form>
         </div>
+        {% if table %}
+            <div class="row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    {% render_table table %}
+                </div>
+                <div class="col-md-2"></div>
 
-
+            </div>
+        {% endif %}
     </div>
 {% endblock %}

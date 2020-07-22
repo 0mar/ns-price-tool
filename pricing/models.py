@@ -12,4 +12,4 @@ class Station(models.Model):
     long = models.CharField(max_length=50)
 
     def __str__(self):
-        return self.short
+        return self.long

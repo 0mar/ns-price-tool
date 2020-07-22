@@ -15,7 +15,7 @@ class TripInfo:
         return "%s to %s at %s" % (self.departure, self.arrival, self.datetime.strftime("%d-%m-%Y %H:%M"))
 
     def get(self, class_type, discount_type, product_type):
-        if discount_type == 'FREE': # Not in API but custom added for this engine
+        if discount_type == 'FREE':  # Not in API but custom added for this engine
             return {'classType': class_type, "discountType": discount_type, "ProductType": product_type,
                     'price': '0'}
         for entry in self.price_info['priceOptions'][1]['totalPrices']:
@@ -32,6 +32,7 @@ class BaseSubscriptor:
 
     def __init__(self):
         self.trips = []
+        self._mp_list = []
 
     def __str__(self):
         """
@@ -65,6 +66,7 @@ class BaseSubscriptor:
 
     def marginal_price(self):
         total = 0
+        self._mp_list.clear()
         for trip in self.trips:
             for rule, discount in self.rules.items():
                 if rule(trip.datetime):
@@ -72,8 +74,14 @@ class BaseSubscriptor:
                     break
             else:
                 raise AttributeError("No rule for trip %s" % trip)
-            total += float(entry['price']) / 100
+            price = float(entry['price']) / 100
+            self._mp_list.append(price)
+            total += price
         return total
+
+    def marginal_prices(self):
+        self.marginal_price()
+        return self._mp_list
 
     def base_price(self):
         return self._duration(in_months=True) * self.base_price_unit
@@ -140,3 +148,6 @@ class AltijdVrij(BaseSubscriptor):
     name = "Altijd Vrij"
     base_price_unit = 351
     rules = {default: 'FREE'}
+
+
+all_subs = [Basis, DalVoordeel, WeekendVrij, AltijdVoordeel, DalVrij, WeekendVrij, AltijdVrij]
